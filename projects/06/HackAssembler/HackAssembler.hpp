@@ -9,14 +9,15 @@ class HackAssembler
 {
     private:
         std::string     mFileName;
+        int             mAddress;
         Code*           mCode;
         Parser*         mParser;
         SymbolTable*    mSymbolTable;
     
-        void preprocess();
-        void getOutFileName();
+        void            preprocess();
+        std::string&    getOutFileName() const;
 
     public:
         HackAssembler(std::string fileName);
-        void run();
+        void            run();
 };

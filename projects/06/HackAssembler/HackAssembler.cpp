@@ -5,46 +5,50 @@ HackAssembler::HackAssembler(std::string fileName)
 {
 }
 
+std::string& HackAssembler::getOutFileName() const
+{
+    size_t      pos = 0;
+    std::string outFileName(mFileName);
+
+    if ((pos = outFileName.find(".asm")) != std::string::npos)
+    {
+        outFileName.replace(pos, 4, ".hack");
+    }
+    return outFileName;
+}
+
 void HackAssembler::preprocess()
 {
-    int lineNumber = 0;
-    std::string symbol;
+    int             lineNumber = 0;
+    std::string     symbol;
     instructionType instructionType;
 
     while(mParser->hasMoreLines())
     {
         mParser->advance();
-        lineNumber++;
         instructionType = mParser->getInstructionType();
         if (instructionType == instructionType::L_INSTRUCTION)
         {
             symbol = mParser->symbol();
             mSymbolTable->addEntry(symbol, lineNumber + 1);
         }
+        lineNumber++;
     }
     delete mParser;
+    mParser = nullptr;
     mParser = new Parser(mFileName);
 }
 
-std::string& HackAssembler::getOutFileName() const
-{
-    size_t pos = 0;
-    std::string outFileName(mFileName);
-
-    if ((pos = outFileName.find(".asm")) != std::string::npos)
-        outFileName.replace(pos, 4, ".hack");
-    return outFileName;
-}
 
 void HackAssembler::run()
 {
 
-    int lineNumber = 0;
-    std::string symbol;
-    std::string dest;
-    std::string comp;
-    std::string jump;
-    std::string prefix = "111";
+    int             lineNumber = 0;
+    std::string     symbol;
+    std::string     dest;
+    std::string     comp;
+    std::string     jump;
+    std::string     prefix = "111";
     instructionType instructionType;
 
     preprocess();
@@ -59,7 +63,6 @@ void HackAssembler::run()
     {
         mParser->advance();
 
-        lineNumber++;
         instructionType = mParser->getInstructionType();
         if (instructionType == instructionType::A_INSTRUCTION)
         {
@@ -79,8 +82,13 @@ void HackAssembler::run()
         }
         else if (instructionType == instructionType::L_INSTRUCTION)
         {
-            continue;
+            symbol = mParser->symbol();
         }
         outFile << "\n";
+        lineNumber++;
     }
+
+    delete mParser;
+    delete mCode;
+    delete mSymbolTable;
 }
