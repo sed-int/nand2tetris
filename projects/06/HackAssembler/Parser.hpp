@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include "SymbolTable.hpp"
 
-enum instructionType
+enum InstructionType
 {
     A_INSTRUCTION,
     C_INSTRUCTION,
@@ -20,7 +21,7 @@ class Parser
         std::string mCurrentLine;
         std::ifstream mInfile;
         std::vector<std::string> mRawInstructions;
-    
+
     public:
 
         Parser(std::string fileName);
@@ -28,9 +29,9 @@ class Parser
         bool init();
         bool hasMoreLines();
         void advance();
-        instructionType getInstructionType();
-        std::string& symbol();
-        std::string& dest();
-        std::string& comp();
-        std::string& jump();
+        InstructionType getInstructionType();
+        std::string symbol();
+        std::string dest();
+        std::string comp();
+        std::string jump();
 };

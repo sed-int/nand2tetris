@@ -1,6 +1,7 @@
 #pragma once
 
-#include<map>
+#include <unordered_map>
+#include <string>
 
 class Code
 {
@@ -8,7 +9,7 @@ class Code
         std::unordered_map<std::string, std::string> mDestTable;
         std::unordered_map<std::string, std::string> mCompTable;
         std::unordered_map<std::string, std::string> mJumpTable;
-    
+
     public:
         Code();
         ~Code();

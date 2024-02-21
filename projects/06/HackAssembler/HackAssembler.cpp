@@ -1,11 +1,30 @@
 #include "HackAssembler.hpp"
+#include <bitset>
+#include <sstream>
+
+namespace
+{
+    std::string decimalToBinaryString(int decimal) {
+    // If the number is negative, handle that separately
+    if(decimal < 0)
+        return "Negative numbers not supported.";
+
+    // If the number is 0, its binary representation is 0
+    if (decimal == 0)
+        return "0000000000000000";
+
+    // Using std::bitset to convert decimal to binary
+    std::bitset<16> binary(decimal);
+    return binary.to_string();
+}
+}
 
 HackAssembler::HackAssembler(std::string fileName)
 : mFileName(fileName), mAddress(16), mParser(new Parser(mFileName)), mCode(new Code), mSymbolTable(new SymbolTable)
 {
 }
 
-std::string& HackAssembler::getOutFileName() const
+std::string HackAssembler::getOutFileName() const
 {
     size_t      pos = 0;
     std::string outFileName(mFileName);
@@ -21,18 +40,21 @@ void HackAssembler::preprocess()
 {
     int             lineNumber = 0;
     std::string     symbol;
-    instructionType instructionType;
+    InstructionType instructionType;
 
     while(mParser->hasMoreLines())
     {
         mParser->advance();
+        if (!mParser->hasMoreLines())
+            break;
         instructionType = mParser->getInstructionType();
-        if (instructionType == instructionType::L_INSTRUCTION)
+        if (instructionType == InstructionType::L_INSTRUCTION)
         {
             symbol = mParser->symbol();
             mSymbolTable->addEntry(symbol, lineNumber + 1);
         }
-        lineNumber++;
+        else
+            lineNumber++;
     }
     delete mParser;
     mParser = nullptr;
@@ -44,12 +66,13 @@ void HackAssembler::run()
 {
 
     int             lineNumber = 0;
+    std::string     msg;
     std::string     symbol;
     std::string     dest;
     std::string     comp;
     std::string     jump;
     std::string     prefix = "111";
-    instructionType instructionType;
+    InstructionType instructionType;
 
     preprocess();
 
@@ -62,29 +85,29 @@ void HackAssembler::run()
     while(mParser->hasMoreLines())
     {
         mParser->advance();
-
+        if (!mParser->hasMoreLines())
+            break;
         instructionType = mParser->getInstructionType();
-        if (instructionType == instructionType::A_INSTRUCTION)
+        if (instructionType == InstructionType::A_INSTRUCTION)
         {
             symbol = mParser->symbol();
             if (mSymbolTable->contains(symbol) == false)
             {
                 mSymbolTable->addEntry(symbol, mAddress++);
             }
-            outFile << mSymbolTable->getAddress(symbol);
+            outFile << decimalToBinaryString(mSymbolTable->getAddress(symbol)) << "\n";
         }
-        else if (instructionType == instructionType::C_INSTRUCTION)
+        else if (instructionType == InstructionType::C_INSTRUCTION)
         {
             comp = mParser->comp();
+            comp = mCode->comp(comp);
             dest = mParser->dest();
+            dest = mCode->dest(dest);
             jump = mParser->jump();
-            outFile << prefix << comp << dest << jump;
+            jump = mCode->jump(jump);
+            msg = prefix + comp + dest + jump;
+            outFile << msg << "\n";
         }
-        else if (instructionType == instructionType::L_INSTRUCTION)
-        {
-            symbol = mParser->symbol();
-        }
-        outFile << "\n";
         lineNumber++;
     }
 

@@ -10,12 +10,12 @@ class HackAssembler
     private:
         std::string     mFileName;
         int             mAddress;
-        Code*           mCode;
         Parser*         mParser;
+        Code*           mCode;
         SymbolTable*    mSymbolTable;
-    
+
         void            preprocess();
-        std::string&    getOutFileName() const;
+        std::string    getOutFileName() const;
 
     public:
         HackAssembler(std::string fileName);

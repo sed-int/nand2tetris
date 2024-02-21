@@ -1,12 +1,13 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
+#include <string>
 
 class SymbolTable
 {
     private:
         std::unordered_map<std::string, int> mTable;
-    
+
     public:
         SymbolTable();
         ~SymbolTable();
